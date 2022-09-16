@@ -5,6 +5,7 @@
 #   - Matheus Teixeira Mattioli  - RA: 769783
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.signal
 from skimage.restoration import estimate_sigma, denoise_nl_means
 
 def nonLocalMeans(size_neigh, size_window, cut_off, img):    
