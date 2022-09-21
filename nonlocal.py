@@ -8,25 +8,36 @@ import matplotlib.pyplot as plt
 import scipy.signal
 from skimage.restoration import estimate_sigma, denoise_nl_means
 
+# Implementação do filtro não linear non-local means
+# Espera receber o tamanho da vizinhança, da janela e uma imagem em esacala de cinza.
 def nonLocalMeans(size_neigh, size_window, cut_off, img):    
 
-    # print("img = ", img)
+    # Dimensões da imagem
     num_rows, num_cols = img.shape
+    # Padding para evitar acesso indevido nas bordas.
     img_padded_neigh = np.pad(img, size_neigh // 2, mode='reflect')
     img_padded_window = np.pad(img, size_window // 2, mode='reflect')
     
     filtered_img = np.zeros((num_rows, num_cols))
+    # Laço principal
+    # Para cada pixel da imagem, aplicar o filtro.
     for row in range(num_rows):
         for col in range(num_cols):
+            # Recorte da vizinhança
             image_neigh = img_padded_neigh[row : row + size_neigh, col : col + size_neigh]
+            # Recorte da janela de visualização
             image_window = img_padded_window[row : row + size_window, col : col + size_window]
+            # Matriz de diferenças, obtida através de template matching por diferença quadrática.
             diff_matrix = quadraticDifference(image_window, image_neigh)
+            # Normalização dos valores.
             diff_matrix = diff_matrix/np.sum(diff_matrix)
+            # Cálculo da imagem w, implementado conforme a fórmula do slide.
             weighted_average = np.exp((-(diff_matrix**2))/(cut_off**2))
             weighted_average = weighted_average/np.sum(weighted_average)
             
+            # Finalmente, é realizado a filtragem do pixel.
             filtered_img[row, col] = float(np.sum(weighted_average * image_window))
-
+    # Após a filtragem em todos os pixels, retornamos a imagem filtrada.
     return filtered_img
 
 def quadraticDifference(img, obj):
